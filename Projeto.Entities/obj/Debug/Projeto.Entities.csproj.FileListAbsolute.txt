@@ -1,0 +1,11 @@
+C:\Users\amrod\OneDrive\Documentos\GitHub\EmpresaFantasma\Projeto.Entities\bin\Debug\Projeto.Entities.dll.config
+C:\Users\amrod\OneDrive\Documentos\GitHub\EmpresaFantasma\Projeto.Entities\bin\Debug\Projeto.Entities.dll
+C:\Users\amrod\OneDrive\Documentos\GitHub\EmpresaFantasma\Projeto.Entities\bin\Debug\Projeto.Entities.pdb
+C:\Users\amrod\OneDrive\Documentos\GitHub\EmpresaFantasma\Projeto.Entities\bin\Debug\EntityFramework.dll
+C:\Users\amrod\OneDrive\Documentos\GitHub\EmpresaFantasma\Projeto.Entities\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\amrod\OneDrive\Documentos\GitHub\EmpresaFantasma\Projeto.Entities\bin\Debug\EntityFramework.xml
+C:\Users\amrod\OneDrive\Documentos\GitHub\EmpresaFantasma\Projeto.Entities\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\amrod\OneDrive\Documentos\GitHub\EmpresaFantasma\Projeto.Entities\obj\Debug\Projeto.Entities.csproj.CoreCompileInputs.cache
+C:\Users\amrod\OneDrive\Documentos\GitHub\EmpresaFantasma\Projeto.Entities\obj\Debug\Projeto.Entities.csproj.CopyComplete
+C:\Users\amrod\OneDrive\Documentos\GitHub\EmpresaFantasma\Projeto.Entities\obj\Debug\Projeto.Entities.dll
+C:\Users\amrod\OneDrive\Documentos\GitHub\EmpresaFantasma\Projeto.Entities\obj\Debug\Projeto.Entities.pdb
