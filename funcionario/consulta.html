@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html>
+<html ng-app="appConsulta">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <link href="../Content/bootstrap.min.css" rel="stylesheet" />
+
+    <script src="../Scripts/jquery-3.0.0.min.js"></script>
+    <script src="../Scripts/bootstrap.min.js"></script>
+
+    <script src="../Scripts/angular.min.js"></script>
+
+    <script>
+
+        var app = angular.module('appConsulta', []);
+        app.controller('consultaController',
+            function ($scope, $http) {
+
+                //função para executar o serviço de consulta da API..
+                $scope.consultar = function () {
+
+                    $http.get("https://localhost:44339/api/funcionario/consultar")
+                        .then(function (obj) {
+                            $scope.funcionarios = obj.data;
+                        })
+                        .catch(function (e) {
+                            $scope.mensagem = e.data.Mensagem; //mensagem de erro..
+                        });
+                };
+
+                //função para obter 1 funcionário pelo id..
+                $scope.obterPorId = function (id) {
+
+                    $http.get("https://localhost:44339/api/funcionario/consultarporid?id=" + id)
+                        .then(function (obj) {
+
+                            //armazenar o funcionario..
+                            $scope.model = obj.data;
+                        })
+                        .catch(function (e) {
+                            $scope.mensagem = e.data.Mensagem;
+                        });
+                }
+
+                //função para excluir o funcionario
+                $scope.excluir = function () {
+                    $http.delete("https://localhost:44339/api/funcionario/excluir?id=" + $scope.model.IdFuncionario)
+                        .then(function (obj) {   
+
+                            $scope.mensagem = obj.data.Mensagem;
+                            $scope.consultar();
+                        })
+                        .catch(function (e) {
+                            $scope.mensagem = e.data.Mensagem;
+                        });
+                };
+
+                //função para atualizar o funcionario
+                $scope.atualizar = function () {
+
+                    $http.put("https://localhost:44339/api/funcionario/atualizar", $scope.model)
+                        .then(function (obj) {
+                            $scope.mensagem = obj.data.Mensagem;
+                            $scope.consultar();
+                        })
+                        .catch(function (e) {
+                            $scope.mensagem = e.data.Mensagem;
+                        });
+                };
+
+            });
+
+    </script>
+
+</head>
+<body class="container" ng-controller="consultaController">
+
+    <h2>Consulta de Funcionários</h2>
+    <a href="/index.html">Página inicial</a>
+    <hr/>
+
+    <div class="row">
+        <div class="col-md-4">
+            <label>Filtrar funcionários</label>
+            <input type="text" class="form-control" 
+                   placeholder="Digite aqui" ng-model="filtropesquisa"/>
+        </div>
+        <div class="col-md-4">
+            <label>Ordernar por</label>
+            <select class="form-control" ng-model="ordenacao">
+                <option value="">Escolha uma opção</option>
+                <option value="IdFuncionario">Código</option>
+                <option value="Nome">Nome do Funcionário</option>
+                <option value="Salario">Salário</option>
+                <option value="DataAdmissao">Data de Admissão</option>
+            </select>
+        </div>
+    </div>
+
+    <br/>
+
+    <div>
+        <strong>{{mensagem}}</strong>
+    </div>
+
+    <table class="table table-bordered" ng-init="consultar()">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Nome do Funcionário</th>
+                <th>Salário</th>
+                <th>Data de Admissão</th>
+                <th>Operações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="f in funcionarios | filter : filtropesquisa | orderBy : ordenacao">
+                <td>{{f.IdFuncionario}}</td>
+                <td>{{f.Nome}}</td>
+                <td>{{f.Salario | currency : 'R$'}}</td>
+                <td>{{f.DataAdmissao | date : 'dd/MM/yyyy'}}</td>
+                <td>
+
+                    <button class="btn btn-primary btn-sm"
+                            data-target="#janelaedicao"
+                            data-toggle="modal" 
+                            ng-click="obterPorId(f.IdFuncionario)">
+                        Atualizar
+                    </button>
+
+                    <button class="btn btn-danger btn-sm"
+                            data-target="#janelaexclusao"
+                            data-toggle="modal"
+                            ng-click="obterPorId(f.IdFuncionario)">
+                        Excluir
+                    </button>
+
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5">
+                    Quantidade de funcionários: 
+                    {{(funcionarios | filter: filtropesquisa).length}}
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- janela de exclusão -->
+    <div id="janelaexclusao" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h4 class="text-white">Excluir Funcionário</h4>
+                </div>
+                <div class="modal-body">
+
+                    Código: <label>{{model.IdFuncionario}}</label>
+                    <br/>
+
+                    Nome do Funcionário: <label>{{model.Nome}}</label>
+                    <br />
+
+                    Salário: <label>{{model.Salario | currency : 'R$'}}</label>
+                    <br />
+
+                    Data de Admissão: <label>{{model.DataAdmissao | date : 'dd/MM/yyyy'}}</label>
+                    <br />
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" data-dismiss="modal"
+                            ng-click="excluir()">
+                        Confirmar Exclusão
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- janela de edição -->
+    <div id="janelaedicao" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h4 class="text-white">Atualizar Funcionário</h4>
+                </div>
+                <div class="modal-body">
+
+                    <label>Código:</label>
+                    <input type="text" class="form-control"
+                           readonly="readonly"
+                           ng-model="model.IdFuncionario" />
+                    <br />
+
+                    <label>Nome do Funcionário:</label>
+                    <input type="text" class="form-control"
+                           placeholder="Digite aqui"
+                           ng-model="model.Nome" />
+                    <br />
+
+                    <label>Salário:</label>
+                    <input type="text" class="form-control"
+                           placeholder="Digite aqui"
+                           ng-model="model.Salario" />
+                    <br />
+
+                    <label>Data de Admissão:</label>
+                    <input type="date" class="form-control"
+                           placeholder="Digite aqui"
+                           value="{{model.DataAdmissao | date : 'yyyy-MM-dd'}}"
+                           ng-model="model.DataAdmissao" />
+                    <br />
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-dismiss="modal"
+                            ng-click="atualizar()">
+                        Atualizar Dados
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>

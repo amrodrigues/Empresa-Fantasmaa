@@ -1,0 +1,245 @@
+﻿<!DOCTYPE html>
+<html ng-app="appConsulta">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <link href="../Content/bootstrap.min.css" rel="stylesheet" />
+
+    <script src="../Scripts/jquery-3.0.0.min.js"></script>
+    <script src="../Scripts/bootstrap.min.js"></script>
+
+    <script src="../Scripts/angular.min.js"></script>
+
+    <script>
+
+        var app = angular.module('appConsulta', []);
+        app.controller('consultaController',
+            function ($scope, $http) {
+
+                //função para executar o serviço de consulta da API..
+                $scope.consultar = function () {
+
+                    $http.get("https://localhost:44339/api/dependente/consultar")
+                        .then(function (obj) {
+                            $scope.dependentes = obj.data;
+                        })
+                        .catch(function (e) {
+                            $scope.mensagem = e.data.Mensagem; //mensagem de erro..
+                        });
+                };
+
+
+
+                //função para obter 1 dependente pelo id..
+                $scope.obterPorId = function (id) {
+
+                    $http.get("https://localhost:44339/api/dependente/consultarporid?id=" + id)
+                        .then(function (obj) {
+                            $scope.model = obj.data;
+                        })
+                        .catch(function (e) {
+                            $scope.mensagem = e.data.Mensagem;
+                        });
+                }
+
+
+                //função para excluir o dependente
+                $scope.excluir = function () {
+
+                    $http.delete("https://localhost:44339/api/dependente/excluir?id=" + $scope.model.IdDependente)
+                        .then(function (obj) {
+                            $scope.mensagem = obj.data.Mensagem;
+                            $scope.consultar();
+                        })
+                        .catch(function (e) {
+                            $scope.mensagem = e.data.Mensagem;
+                        });
+                };
+
+                //função para atualizar o dependente
+                $scope.atualizar = function () {
+                    
+                    $http.put("https://localhost:44339/api/dependente/atualizar", $scope.model)
+                        .then(function (obj) {
+                            $scope.mensagem = obj.data.Mensagem;
+                            $scope.consultar();
+                        })
+                        .catch(function (e) {
+                            $scope.mensagem = e.data.Mensagem;
+                        });
+                };
+
+
+                //função para consultar os funcionarios..
+                $scope.consultarFuncionarios = function () {
+                    $http.get("https://localhost:44339/api/funcionario/consultar")
+                        .then(function (obj) {
+                            $scope.funcionarios = obj.data;
+                            
+                        })
+                        .catch(function (e) {
+                            $scope.mensagem = e.data.Mensagem;
+                        });
+                };
+
+            });
+
+
+    </script>
+
+</head>
+<body class="container" ng-controller="consultaController">
+
+    <h2>Consulta de Dependentes</h2>
+    <a href="/index.html">Página inicial</a>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-4">
+            <label>Filtrar dependentes</label>
+            <input type="text" class="form-control"
+                   placeholder="Digite aqui" ng-model="filtropesquisa" />
+        </div>
+    </div>
+
+    <br />
+
+    <div>
+        <strong>{{mensagem}}</strong>
+    </div>
+
+    <table class="table table-bordered" ng-init="consultar()">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Nome do Dependente</th>
+                <th>Data de Nascimento</th>
+                <th>Dados do Funcionário</th>
+                <th>Operações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="d in dependentes | filter : filtropesquisa">
+                <td>{{d.IdDependente}}</td>
+                <td>{{d.Nome}}</td>
+                <td>{{d.DataNascimento | date : 'dd/MM/yyyy'}}</td>
+                <td>
+                    {{d.Funcionario.Nome}} <br />
+                    Salário: {{d.Funcionario.Salario | currency : 'R$'}} <br />
+                    Admissão: {{d.Funcionario.DataAdmissao | date : 'dd/MM/yyyy'}}
+                </td>
+                <td>
+
+                    <button class="btn btn-primary btn-sm"
+                            data-target="#janelaedicao"
+                            data-toggle="modal"
+                            ng-click="obterPorId(d.IdDependente)">
+                        Atualizar
+                    </button>
+
+                    <button class="btn btn-danger btn-sm"
+                            data-target="#janelaexclusao"
+                            data-toggle="modal"
+                            ng-click="obterPorId(d.IdDependente)">
+                        Excluir
+                    </button>
+
+                </td>
+            </tr>
+
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5">
+                    Quantidade de dependentes:
+                    {{(dependentes | filter: filtropesquisa).length}}
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- janela de exclusão -->
+    <div id="janelaexclusao" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h4 class="text-white">Excluir Dependente</h4>
+                </div>
+                <div class="modal-body">
+
+                    Código: <label>{{model.IdDependente}}</label>
+                    <br />
+
+                    Nome do Dependente: <label>{{model.Nome}}</label>
+                    <br />
+
+                    Data Nascimento: <label>{{model.DataNascimento | date : 'dd/MM/yyyy'}}</label>
+                    <br />
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" data-dismiss="modal"
+                            ng-click="excluir()">
+                        Confirmar Exclusão
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- janela de edição -->
+    <div id="janelaedicao" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h4 class="text-white">Atualizar Funcionário</h4>
+                </div>
+                <div class="modal-body">
+
+                    <label>Código:</label>
+                    <input type="text" class="form-control"
+                           readonly="readonly"
+                           ng-model="model.IdDependente" />
+                    <br />
+
+                    <label>Nome do Dependente:</label>
+                    <input type="text" class="form-control"
+                           placeholder="Digite aqui"
+                           ng-model="model.Nome" />
+                    <br />
+
+
+                    <label>Data de Nascimento:</label>
+                    <input type="text" class="form-control"
+                           placeholder="Digite aqui"
+                           value="{{model.DataNascimento}}"
+                           ng-model="model.DataNascimento" />
+                    <br />
+
+                    <label> Funcionário:</label>
+                    <select class="form-control" ng-model="model.IdFuncionario"
+                            ng-init="consultarFuncionarios()">
+                        <option ng-repeat="f in funcionarios" value="{{f.IdFuncionario}}"
+                                ng-selected="f.IdFuncionario == model.IdFuncionario">
+                            {{f.Nome}}
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-dismiss="modal"
+                            ng-click="atualizar()">
+                        Atualizar Dados
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
